@@ -2,6 +2,12 @@ import os
 import yaml
 import csv
 from datetime import datetime
+from github import Github  # Importe a biblioteca PyGithub para interagir com a API do GitHub
+
+def carregar_repositorios(caminho_repos_yaml):
+    with open(caminho_repos_yaml, 'r') as file:
+        repos_yaml = yaml.safe_load(file)
+    return repos_yaml['repos']
 
 def carregar_template(caminho_template):
     with open(caminho_template, 'r') as file:
@@ -43,19 +49,64 @@ def commit_arquivos(diretorio_raiz, mensagem_commit):
     os.system('git add .')
     os.system(f'git commit -m "{mensagem_commit}"')
 
-# Caminhos dos arquivos
-diretorio_raiz = os.environ['GITHUB_WORKSPACE']
-caminho_template = os.path.join(diretorio_raiz, '.github', 'templates', 'template_documentacao.yaml')
-diretorio_saida = os.path.join(diretorio_raiz, 'repo-documentation')
+def exportar_documentacao_para_csv(repositorios):
+    # Caminho do diretório de trabalho
+    diretorio_raiz = os.environ['GITHUB_WORKSPACE']
+    
+    # Diretório de saída para os arquivos CSV
+    diretorio_saida = os.path.join(diretorio_raiz, 'documentation')
 
-# Carregar o template YAML
-template = carregar_template(caminho_template)
+    # Loop através dos repositórios listados
+    for repo_info in repositorios:
+        repo_nome = repo_info['name']
+        repo_url = repo_info['url']
 
-# Exportar para CSV por seção
-exportar_para_csv(template, diretorio_saida)
+        # Diretório do repositório clonado
+        diretorio_repo = os.path.join(diretorio_raiz, 'temp_repo')
 
-# Fazer commit dos arquivos gerados
-mensagem_commit = "Adicionando arquivos de documentação CSV por seção"
-commit_arquivos(diretorio_saida, mensagem_commit)
+        # Clonar o repositório
+        os.system(f'git clone --depth 1 {repo_url} {diretorio_repo}')
 
-print("Exportação para CSV por seção concluída e arquivos commitados com sucesso!")
+        # Diretório .konecty_docs dentro do repositório clonado
+        diretorio_konecty_docs = os.path.join(diretorio_repo, '.konecty_docs')
+
+        # Verificar se o diretório .konecty_docs existe
+        if os.path.exists(diretorio_konecty_docs):
+            # Caminho completo para process.yaml e services.yaml
+            caminho_process_yaml = os.path.join(diretorio_konecty_docs, 'process.yaml')
+            caminho_services_yaml = os.path.join(diretorio_konecty_docs, 'services.yaml')
+
+            # Verificar se os arquivos process.yaml e services.yaml existem
+            if os.path.exists(caminho_process_yaml) and os.path.exists(caminho_services_yaml):
+                # Criar diretório de documentação para o repositório
+                diretorio_documentacao_repo = os.path.join(diretorio_saida, repo_nome)
+                os.makedirs(diretorio_documentacao_repo, exist_ok=True)
+
+                # Exportar process.yaml para CSV
+                exportar_para_csv(carregar_template(caminho_process_yaml), diretorio_documentacao_repo)
+
+                # Exportar services.yaml para CSV
+                exportar_para_csv(carregar_template(caminho_services_yaml), diretorio_documentacao_repo)
+
+                # Commit dos arquivos gerados
+                mensagem_commit = f"Adicionando arquivos de documentação CSV para {repo_nome}"
+                commit_arquivos(diretorio_documentacao_repo, mensagem_commit)
+            else:
+                print(f"Arquivos process.yaml e/ou services.yaml não encontrados em {repo_url}")
+        else:
+            print(f"Diretório .konecty_docs não encontrado em {repo_url}")
+
+        # Remover o diretório temporário do repositório clonado
+        os.system(f'rm -rf {diretorio_repo}')
+
+if __name__ == "__main__":
+    # Caminho do arquivo repos_documentation.yaml
+    caminho_repos_yaml = os.path.join(os.environ['GITHUB_WORKSPACE'], 'repos_documentation.yaml')
+
+    # Carregar os repositórios listados no YAML
+    repositorios = carregar_repositorios(caminho_repos_yaml)
+
+    # Exportar documentação para CSVs
+    exportar_documentacao_para_csv(repositorios)
+
+    print("Exportação de documentação para CSV concluída!")
