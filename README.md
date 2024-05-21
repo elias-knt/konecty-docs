@@ -1,21 +1,21 @@
 # 🤖 Automação de Geração de Documentação (em edição - Apenas esboço) v 0.1 📝
 
-Este repositório contém a automação para geração de documentação a partir de arquivos YAML encontrados em diferentes repositórios do GitHub. A automação é realizada por meio de GitHub Actions, que processa os arquivos YAML especificados nos repositórios listados em `repos.yaml`.
+Este repositório contém a automação para geração de documentação a partir de arquivos YAML encontrados em diferentes repositórios do GitHub. A automação é realizada por meio de GitHub Actions, que processa os arquivos YAML especificados nos repositórios listados em `repos_documentation.yaml`.
 
 ## Estrutura do Repositório 📂
 
-- `.github/workflows/documentation.yml`: Definição da GitHub Action responsável por executar a automação.
-- `repos.yaml`: Arquivo YAML que lista os repositórios nos quais a automação buscará os arquivos de documentação.
+- `.github/workflows/doc.yml`: Definição da GitHub Action responsável por executar a automação.
+- `repos_documentation.yaml`: Arquivo YAML que lista os repositórios nos quais a automação buscará os arquivos de documentação.
 - `documentation/`: Pasta que contém a documentação gerada.
-  - `<nome_do_repo>/`: Subpasta para cada repositório listado em `repos.yaml`.
+  - `<nome_do_repo>/`: Subpasta para cada repositório listado em `repos_documentation.yaml`.
     - `services.csv`: Arquivo gerado a partir do `services.yaml` encontrado em `.konecty_docs`.
     - `process.csv`: Arquivo gerado a partir do `process.yaml` encontrado em `.konecty_docs`.
 
 ## Funcionamento da Automação 🔄
 
-A GitHub Action definida (`documentation.yml`) é acionada em intervalos programados ou em eventos específicos (por exemplo, push para o repositório `repos.yaml`). A action realiza o seguinte processo:
+A GitHub Action definida (`doc.yml`) é acionada em intervalos programados ou em eventos específicos (por exemplo, push para o repositório `repos_documentation.yaml`). A action realiza o seguinte processo:
 
-1. **Leitura de `repos.yaml`:** Identifica os repositórios especificados para busca de documentação.
+1. **Leitura de `repos_documentation.yaml`:** Identifica os repositórios especificados para busca de documentação.
 2. **Processamento por Repositório:**
    - Para cada repositório listado:
      - Busca pela pasta `.konecty_docs`.
@@ -26,4 +26,4 @@ A GitHub Action definida (`documentation.yml`) é acionada em intervalos program
 
 ## Como Configurar 🛠️
 
-Para configurar ou modificar a automação, edite `repos.yaml` para adicionar ou remover repositórios. Certifique-se de que cada repositório contenha a pasta `.konecty_docs` com os arquivos `services.yaml` e `process.yaml`.
+Para configurar ou modificar a automação, edite `repos_documentation.yaml` para adicionar ou remover repositórios. Certifique-se de que cada repositório contenha a pasta `.konecty_docs` com os arquivos `services.yaml` e `process.yaml`.
