@@ -1,0 +1,76 @@
+services:
+  - name: Active Campaign Nodered
+    description: Servidor com integrações de usuários e leads, Alertas de vencimentos, Reports, Processamento de formulários, Geração de Sitemap, Processamento de imóveis favoritos do site, e muito mais ...
+    repository: github.com/konecty/foxter-marketing
+    URL: foxter-activecampaign.konecty.com
+    actors:
+      - System
+      - Admins
+
+processes:
+  - name: "[GET]/api/liveness"
+    type: Webhook
+    service: Active Campaign Nodered
+    module_interactions:
+      - "Product:read"
+
+  - name: "[POST]/api/oportunidades/campanha/:campanha"
+    type: Webhook
+    service: Active Campaign Nodered
+    module_interactions:
+      - "Campaign:read"
+      - "Contact:create"
+      - "Product:read"
+      - "Opportunity:create"
+      - "Activity:create"
+      - "Contact:read"
+    notes:
+      - "POST to https://foxter-atendimento.konecty.com/api/360/v1/forward/{{queueType}}"
+      - "POST to https://foxter-atendimento.konecty.com/api/360/v1/registerOpportunity"
+      - "same as [POST]/oportunidades/campanha/:campanha"
+    swagger: "/docs/opportunities"
+
+  - name: "[POST]/api/oportunidades/campanha/:campanha/imovel/:imovel"
+    type: Webhook
+    service: Active Campaign Nodered
+    module_interactions:
+      - "Campaign:read"
+      - "Contact:create"
+      - "Product:read"
+    notes:
+      - "POST to https://foxter-atendimento.konecty.com/api/360/v1/forward/{{queueType}}"
+      - "POST to https://foxter-atendimento.konecty.com/api/360/v1/registerOpportunity"
+      - "same as [POST]/oportunidades/campanha/:campanha"
+    swagger: "/docs/opportunities"
+
+  - name: "Envio de usuários"
+    type: Schedule
+    scheduled_at: "Everyday 04:00"
+    service: Active Campaign Nodered
+    module_interactions:
+      - "User:read"
+    notes:
+      - "POST to https://foxter.api-us1.com/api/3/contact/sync"
+      - "POST to https://foxter.api-us1.com/api/3/fieldValues"
+      - "POST to https://foxter.api-us1.com/api/3/contactLists"
+
+  - name: "Criação de campos"
+    type: Manual
+    service: Active Campaign Nodered
+    notes:
+      - "POST to https://foxter.api-us1.com/api/3/fields"
+      - "POST to https://foxter.api-us1.com/api/3/fieldRels"
+      - "POST to https://foxter.api-us1.com/api/3/fieldOption/bulk"
+
+  - name: "Envio de leads"
+    type: Schedule
+    scheduled_at: "Everyday 03:01"
+    service: Active Campaign Nodered
+    module_interactions:
+      - "Opportunity:read"
+      - "Contact:read"
+      - "Product:read"
+    notes:
+      - "POST to https://foxter.api-us1.com/api/3/contact/sync"
+      - "POST to https://foxter.api-us1.com/api/3/fieldValues"
+      - "POST to https://foxter.api-us1.com/api/3/contactLists"

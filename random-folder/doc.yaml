@@ -1,0 +1,26 @@
+ - name: "Alerta de Vencimento - Oportunidades vencendo 13 - 15 dias"
+    type: Schedule
+    scheduled_at: "Weekdays 08:20"
+    service: Active Campaign Nodered
+    module_interactions:
+      - "Opportunity:read"
+    notes:
+      - "Send to RocketChat"
+
+  - name: "Alerta de Vencimento - Imóveis vencendo 55 - 60 dias"
+    type: Schedule
+    scheduled_at: "Weekdays 16:50"
+    service: Active Campaign Nodered
+    module_interactions:
+      - "Product:read"
+    notes:
+      - "Send to RocketChat"
+
+  - name: "Alerta de Vencimento - Término da exclusividade - últimos 5 dias"
+    type: Schedule
+    scheduled_at: "Weekdays 12:20"
+    service: Active Campaign Nodered
+    module_interactions:
+      - "Product:read"
+    notes:
+      - "Send to RocketChat"
