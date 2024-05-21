@@ -26,25 +26,26 @@ jobs:
           pip install PyGithub
 
       - name: Verificar Existência do Diretório "scripts"
-        run: test -d $GITHUB_WORKSPACE/.github/scripts || echo "Diretório scripts não encontrado, baixando o repositório novamente."
-        continue-on-error: true
-
-      - name: Baixar Repositório Novamente se Falhar
-        if: ${{ failure() }}
-        run: rm -rf $GITHUB_WORKSPACE && git clone https://github.com/elias-knt/foxter-mkt-campaign.git $GITHUB_WORKSPACE
+        run: |
+          if [ ! -d "$GITHUB_WORKSPACE/.github/scripts" ]; then
+            echo "Diretório scripts não encontrado, baixando o repositório novamente."
+            rm -rf $GITHUB_WORKSPACE
+            git clone https://github.com/elias-knt/foxter-mkt-campaign.git $GITHUB_WORKSPACE
+          fi
 
       - name: Verificar Existência do Script Python
-        run: test -f $GITHUB_WORKSPACE/.github/scripts/gerar_documentacao.py
-        continue-on-error: true
+        run: |
+          if [ ! -f "$GITHUB_WORKSPACE/.github/scripts/gerar_documentacao.py" ]; then
+            echo "Script Python para gerar documentação não encontrado."
+            exit 1
+          fi
 
       - name: Executar Script Python para Gerar Documentação
-        if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.CRIA_DOCUMENTACAO }}
         run: python $GITHUB_WORKSPACE/.github/scripts/gerar_documentacao.py
 
       - name: Adicionar, Confirmar e Empurrar Arquivos Gerados
-        if: success()
         run: |
           git config --global user.email "elias.andrade@konecty.com"
           git config --global user.name "GitHub Actions"
