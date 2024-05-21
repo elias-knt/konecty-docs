@@ -1,4 +1,4 @@
-# Automação de Geração de Documentação
+# Automação de Geração de Documentação (em edição-Apenas esboço) v 0.1
 
 Este repositório contém a automação para geração de documentação a partir de arquivos YAML encontrados em diferentes repositórios do GitHub. A automação é realizada por meio de GitHub Actions, que processa os arquivos YAML especificados nos repositórios listados em `repos.yaml`.
 
